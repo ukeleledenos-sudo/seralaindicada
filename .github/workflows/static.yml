@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Criterios de evaluación</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; }
+table { border-collapse: collapse; width: 100%; max-width: 800px; margin-top: 20px; }
+th, td { border: 1px solid #aaa; padding: 6px; text-align: center; }
+.aprobado { background: #dff0d8; font-weight: bold; }
+.suspendido { background: #f2dede; font-weight: bold; }
+td[contenteditable="true"] { background: #f9f9c0; }
+td[contenteditable="false"] { background: #e0e0e0; font-weight: bold; }
+.subSuspenso { color: red; font-weight: bold; }
+#final { font-size: 1.1em; padding: 10px; margin-top: 20px; white-space: pre-line; }
+.criterio-principal { background: #d0e0ff; font-weight: bold; }
+#firma { margin-top: 40px; font-style: italic; color: #555; }
+</style>
+</head>
+<body>
+<h2>Criterios de evaluación</h2>
+<table id="tablaNotas">
+<thead>
+<tr><th>Criterio</th><th>Nota (0-10)</th><th>Resultado</th></tr>
+</thead>
+<tbody>
+<!-- Bloques con subcriterios -->
+<tr class="criterio-principal"><td>1.0 Pasado</td><td contenteditable="false"></td><td></td></tr>
+<tr><td>1.1 Relaciones</td><td contenteditable="true"></td><td></td></tr>
+<tr><td>1.2 Vida y familia</td><td contenteditable="true"></td><td></td></tr>
+<tr><td>1.3 Puterio</td><td contenteditable="true"></td><td></td></tr>
+
+<tr class="criterio-principal"><td>2.0 Mentiras</td><td contenteditable="false"></td><td></td></tr>
+<tr><td>2.1 Frecuentes</td><td contenteditable="true"></td><td></td></tr>
+<tr><td>2.2 Medias</td><td contenteditable="true"></td><td></td></tr>
+<tr><td>2.3 Contradicciones</td><td contenteditable="true"></td><td></td></tr>
+
+<tr class="criterio-principal"><td>3.0 Responsabilidades</td><td contenteditable="false"></td><td></td></tr>
+<tr><td>3.1 En la relación (DOBLE)</td><td contenteditable="true"></td><td></td></tr>
+<tr><td>3.2 Af-Sx</td><td contenteditable="true"></td><td></td></tr>
+<tr><td>3.3 Futuro</td><td contenteditable="true"></td><td></td></tr>
+
+<tr class="criterio-principal"><td>4.0 Estudios</td><td contenteditable="false"></td><td></td></tr>
+<tr><td>4.1 Carrera/Formación futura</td><td contenteditable="true"></td><td></td></tr>
+<tr><td>4.2 Notas actuales</td><td contenteditable="true"></td><td></td></tr>
+
+<!-- Bloques editables sin subcriterios -->
+<tr class="criterio-principal"><td>5.0 Libre albedrío</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>6.0 Atracción física</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>7.0 Personalidad</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>8.0 Reputación</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>9.0 Irresponsabilidad Alcohólica</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>10.0 Anime</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>11.0 Música</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>12.0 Creencias</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>13.0 No superación</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>14.0 No fumar</td><td contenteditable="true"></td><td></td></tr>
+<tr class="criterio-principal"><td>15.0 Manipulación</td><td contenteditable="true"></td><td></td></tr>
+</tbody>
+</table>
+
+<div id="final"></div>
+<div id="firma">Trabajo generado con ayuda de ChatGPT 😎</div>
+
+<script>
+function evaluar() {
+  const filas = document.querySelectorAll("#tablaNotas tbody tr");
+  let bloquesAprobados = 0;
+  const bloques = Array.from(filas).filter(f => f.classList.contains("criterio-principal"));
+
+  bloques.forEach(fila => {
+    const celdaNota = fila.cells[1];
+    const celdaRes = fila.cells[2];
+    const texto = fila.cells[0].textContent.trim();
+    const prefijo = texto.split(" ")[0].replace(".0",".");
+
+    let subNotas = [];
+    filas.forEach(subfila => {
+      const subTexto = subfila.cells[0].textContent.trim();
+      const subCelda = subfila.cells[1];
+      const subRes = subfila.cells[2];
+
+      if (subTexto.startsWith(prefijo) && subTexto !== texto) {
+        let valor = parseFloat(subCelda.textContent.replace(",", "."));
+        if (!isNaN(valor)) {
+          if (valor > 10) valor = 10;
+          subNotas.push(valor);
+          if (valor < 5) subCelda.classList.add("subSuspenso");
+          else subCelda.classList.remove("subSuspenso");
+          subRes.textContent = valor >= 5 ? "APROBADO" : "SUSPENDIDO";
+          subRes.className = valor >= 5 ? "aprobado" : "suspendido";
+        } else {
+          subRes.textContent = "";
+          subRes.className = "";
+        }
+      }
+    });
+
+    // Nota del bloque
+    let notaBloque;
+    if (subNotas.length > 0) {
+      notaBloque = subNotas.reduce((a,b)=>a+b,0)/subNotas.length;
+      celdaNota.textContent = notaBloque.toFixed(2);
+    } else {
+      notaBloque = parseFloat(celdaNota.textContent.replace(",", "."));
+      if (isNaN(notaBloque)) notaBloque = 0;
+      if (notaBloque > 10) notaBloque = 10;
+      celdaNota.textContent = notaBloque;
+      if (notaBloque < 5) celdaNota.classList.add("subSuspenso");
+      else celdaNota.classList.remove("subSuspenso");
+    }
+
+    if (notaBloque >= 5) {
+      celdaRes.textContent = "APROBADO";
+      celdaRes.className = "aprobado";
+      bloquesAprobados++;
+    } else {
+      celdaRes.textContent = "SUSPENDIDO";
+      celdaRes.className = "suspendido";
+    }
+  });
+
+  const divFinal = document.getElementById("final");
+  if (bloquesAprobados >= 10) {
+    divFinal.textContent = "Enhorabuena tío has encontrado a un posible\ncaso de compatibilidad,\nasí que no se que no haces que\nno estas yendo a hablar con ella, suerte!";
+    divFinal.className = "aprobado";
+  } else {
+    divFinal.textContent = "Lo siento chico, esa chica no es para ti \ny es probable que te cause \nmas problemas emocionales \ncon los que te recomiendo no debes pasar. \nVive tu vida y tranquilo que llegar la indicada, \nel futuro es hoy y depende de ti.";
+    divFinal.className = "suspendido";
+  }
+}
+
+document.addEventListener("input", evaluar);
+window.onload = evaluar;
+</script>
+</body>
+</html>
